@@ -22,16 +22,36 @@ searchForm.onsubmit = (ev) => {
   });
 };
 
-// given a word (string), search for rhymes
-// https://rhymebrain.com/api.html#rhyme
-//  https://rhymebrain.com/talk?function=getRhymes&word=hello
+
+// Given a keyword (or not), search for a joke with said key.
+// https://sv443.net/jokeapi/v2/
 
 const getRhymes = (word) => {
-  console.log("attempting to get rhymes for", word);
-  return fetch(
-    `https://rhymebrain.com/talk?function=getRhymes&word=${word}`
-  ).then((resp) => resp.json());
+
+  // Case for no serch entry
+  if (word.length == 0) {
+    console.log("attempting to get a random joke");
+    return fetch(
+      `https://v2.jokeapi.dev/joke/Any?amount=5`
+    ).then((resp) => resp.json());
+
+  // Case for searching entry
+  } else {
+    console.log("attempting to get jokes for ", word);
+    return fetch(
+      `https://v2.jokeapi.dev/joke/Any?contains=${word}&amount=5`
+    ).then((resp) => resp.json());
+  }
 };
+
+// NOTES FOR IMPLEMENTATION:
+//  - parse joke as JSON
+//  - check the error feild first, if true, print "No jokes for keyword" or something
+//  - otherwise check the type of joke: "single"  - has a "joke" feild
+//                                      "twopart" - has a "setup" and "delivery" feild
+//  - use conditional statements to get the results
+//  - for "single" just put joke under the meme image
+//  - for "twopart" put the setup on top and the delivery under the meme image
 
 const rhymObj2DOMObj = (rhymeObj) => {
   //this should be an array where each element has a structure like
