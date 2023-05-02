@@ -1,3 +1,10 @@
 #book-results .card {
     width: 8rem;
   }
+
+h1, p {
+  width: 100vw;
+  display: flexbox;
+  align-content: center;
+  text-align: center;
+}
