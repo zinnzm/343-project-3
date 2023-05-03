@@ -29,10 +29,10 @@ const getJokes = (word) => {
       console.log(data);
       makeJokeButtons(data);
     });
-    joke.open("GET", `https://v2.jokeapi.dev/joke/Programming?amount=5`);
+    joke.open("GET", `https://v2.jokeapi.dev/joke/Programming?blacklistFlags=nsfw&amount=5`);
     joke.send();
 
-  // Case for searching entry
+    // Case for searching entry
   } else {
     console.log("attempting to get jokes for", word);
     let joke = new XMLHttpRequest();
@@ -67,82 +67,82 @@ function makeJokeButtons(data) {
         jokeButton = document.createElement('button');
         jokeButton.innerHTML = text;
         jokeResultsUL.appendChild(jokeButton);
-        jokeButton.addEventListener('click', function() {
+        jokeButton.addEventListener('click', function () {
           // Get the memes from meme API: https://imgflip.com/api
-        let meme = new XMLHttpRequest();
-        meme.addEventListener("load", function (ev){
-          const structuredData = JSON.parse(ev.target.responseText);
-          const data = structuredData;
-          console.log(data);
-          makeMemes(data, text, '');
-        });
-        meme.open("GET", 'https://api.imgflip.com/get_memes');
-        meme.send();  
+          let meme = new XMLHttpRequest();
+          meme.addEventListener("load", function (ev) {
+            const structuredData = JSON.parse(ev.target.responseText);
+            const data = structuredData;
+            console.log(data);
+            makeMemes(data, text, '');
+          });
+          meme.open("GET", 'https://api.imgflip.com/get_memes');
+          meme.send();
         })
 
-      // Setup and delivery
+        // Setup and delivery
       } else {
         const setup = joke.setup;
         const deliv = joke.delivery;
         jokeButton = document.createElement('button');
         jokeButton.innerHTML = setup + "\n" + deliv;
         jokeResultsUL.appendChild(jokeButton);
-        jokeButton.addEventListener('click', function() {
+        jokeButton.addEventListener('click', function () {
           // Get the memes from meme API: https://imgflip.com/api
-        let meme = new XMLHttpRequest();
-        meme.addEventListener("load", function (ev){
-          const structuredData = JSON.parse(ev.target.responseText);
-          const data = structuredData;
-          console.log(data);
-          makeMemes(data, setup, deliv);
-        });
-        meme.open("GET", 'https://api.imgflip.com/get_memes');
-        meme.send();  
+          let meme = new XMLHttpRequest();
+          meme.addEventListener("load", function (ev) {
+            const structuredData = JSON.parse(ev.target.responseText);
+            const data = structuredData;
+            console.log(data);
+            makeMemes(data, setup, deliv);
+          });
+          meme.open("GET", 'https://api.imgflip.com/get_memes');
+          meme.send();
         })
       }
     });
-  // Otherwise return an error message  
+    // Otherwise return an error message  
   } else {
     noJoke = document.createElement('li');
     noJoke.innerHTML = 'No jokes were found that match your provided filter.'
     jokeResultsUL.appendChild(noJoke);
   }
-  
-function makeMemes(data, jokeZero, jokeOne) {
-  // Make caption requester.
-  const captionCaller = new XMLHttpRequest();
-  let captionZero = jokeZero;
-  let captionOne = jokeOne;
-  console.log('caption 0', captionZero);
-  console.log('caption 1', captionOne);
-  theMemes = data.data;
-  console.log(theMemes);
-  let memeArray = theMemes.memes
-  let meme = memeArray[Math.floor(Math.random() * memeArray.length)];
-  let memeID = meme.id;
-  captionCaller.addEventListener('load', function (ev) {
-    const structuredData = JSON.parse(ev.target.responseText);
-    const data = structuredData;
-    console.log(data);
-    displayMeme(data);
-  })
 
-  captionCaller.open('POST', `https://api.imgflip.com/caption_image?template_id=${memeID}&username=abalbuena2000&password=abalbuena2000!$&text0=${captionZero}&text1=${captionOne}`);
-  captionCaller.send(); 
-}
+  function makeMemes(data, jokeZero, jokeOne) {
+    // Make caption requester.
+    const captionCaller = new XMLHttpRequest();
+    let captionZero = jokeZero;
+    let captionOne = jokeOne;
+    console.log('caption 0', captionZero);
+    console.log('caption 1', captionOne);
+    theMemes = data.data;
+    console.log(theMemes);
+    let memeArray = theMemes.memes
+    let meme = memeArray[Math.floor(Math.random() * memeArray.length)];
+    let memeID = meme.id;
+    captionCaller.addEventListener('load', function (ev) {
+      const structuredData = JSON.parse(ev.target.responseText);
+      const data = structuredData;
+      console.log(data);
+      displayMeme(data);
+    })
 
-function displayMeme(data) {
-  let memeObject = data.data;
-  let memeURL = memeObject.url;
-  console.log(memeURL);
-  const jokes = document.querySelector('#joke-results');
-  while (jokes.firstChild) {
-    jokes.removeChild(jokes.firstChild);
+    captionCaller.open('POST', `https://api.imgflip.com/caption_image?template_id=${memeID}&username=abalbuena2000&password=abalbuena2000!$&text0=${captionZero}&text1=${captionOne}`);
+    captionCaller.send();
   }
-  var img = new Image();
-  img.src = memeURL;
-  jokes.appendChild(img);
-}
+
+  function displayMeme(data) {
+    let memeObject = data.data;
+    let memeURL = memeObject.url;
+    console.log(memeURL);
+    const jokes = document.querySelector('#joke-results');
+    while (jokes.firstChild) {
+      jokes.removeChild(jokes.firstChild);
+    }
+    var img = new Image();
+    img.src = memeURL;
+    jokes.appendChild(img);
+  }
 }
 
 
