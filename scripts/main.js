@@ -1,48 +1,88 @@
+// Search button event handler:
 const searchForm = document.getElementById("top-search");
 searchForm.onsubmit = (ev) => {
   console.log("submitted top-search with", ev);
   ev.preventDefault();
-  // https://stackoverflow.com/a/26892365/1449799
   const formData = new FormData(ev.target);
-  // console.log(formData)
-  // for (const pair of formData.entries()) {
-  //   console.log(`${pair[0]}, ${pair[1]}`);
-  // }
   const queryText = formData.get("query");
   console.log("queryText", queryText);
 
-  const rhymeResultsPromise = getRhymes(queryText);
-  rhymeResultsPromise.then((rhymeResults) => {
-    const rhymeListItemsArray = rhymeResults.map(rhymObj2DOMObj);
-    console.log("rhymeListItemsArray", rhymeListItemsArray);
-    const rhymeResultsUL = document.getElementById("rhyme-results");
-    rhymeListItemsArray.forEach((rhymeLi) => {
-      rhymeResultsUL.appendChild(rhymeLi);
-    });
-  });
+  getJokes(queryText);
 };
 
-
-// Given a keyword (or not), search for a joke with said key.
-// https://sv443.net/jokeapi/v2/
-
-const getRhymes = (word) => {
+// Get the jokes after clicking the "Go!" button:
+const getJokes = (word) => {
 
   // Case for no serch entry
   if (word.length == 0) {
     console.log("attempting to get a random joke");
-    return fetch(
-      `https://v2.jokeapi.dev/joke/Any?amount=5`
-    ).then((resp) => resp.json());
+    let joke = new XMLHttpRequest();
+    joke.addEventListener("load", function (ev) {
+      const structuredData = JSON.parse(ev.target.responseText);
+      const data = structuredData;
+      console.log(data);
+      makeJokeList(data);
+    });
+    joke.open("GET", `https://v2.jokeapi.dev/joke/Any?amount=5`);
+    joke.send();
 
   // Case for searching entry
   } else {
-    console.log("attempting to get jokes for ", word);
-    return fetch(
-      `https://v2.jokeapi.dev/joke/Any?contains=${word}&amount=5`
-    ).then((resp) => resp.json());
+    console.log("attempting to get jokes for", word);
+    let joke = new XMLHttpRequest();
+    joke.addEventListener("load", function (ev) {
+      const structuredData = JSON.parse(ev.target.responseText);
+      const data = structuredData;
+      console.log(data);
+      makeJokeList(data);
+    });
+    joke.open("GET", `https://v2.jokeapi.dev/joke/Any?contains=${word}&amount=5`);
+    joke.send();
   }
 };
+
+// Create Li elements to display joke results
+function makeJokeList(data) {
+  const jokeResultsUL = document.getElementById("joke-results");
+
+  // "error" is a boolean value - true if no jokes were found, false otherwise 
+  const err = data.error;
+  console.log("error:", err);
+
+  // If jokes were found, add them to the results
+  if (!err) {
+    theJokes = data.jokes;
+    theJokes.forEach((joke) => {
+
+      // One-liners
+      if (joke.type == "single") {
+        const text = joke.joke;
+        let jokeLi = document.createElement('li');
+        jokeLi.innerHTML = text;
+        jokeResultsUL.appendChild(jokeLi);
+
+      // Setup and delivery
+      } else {
+        const setup = joke.setup;
+        const deliv = joke.delivery;
+        let jokeLi = document.createElement('li');
+        jokeLi.innerHTML = setup + "\n" + deliv;
+        jokeResultsUL.appendChild(jokeLi);
+      }
+    });
+
+  // Otherwise return an error message  
+  } else {
+    noJoke = document.createElement('li');
+    noJoke.innerHTML = 'No jokes were found that match your provided filter.'
+    jokeResultsUL.appendChild(noJoke);
+  }
+
+  // jokeListItemsArray.forEach((jokeLi) => {
+  //   jokeResultsUL.appendChild(jokeLi);
+  // });
+}
+
 
 // NOTES FOR IMPLEMENTATION:
 //  - parse joke as JSON
@@ -53,7 +93,11 @@ const getRhymes = (word) => {
 //  - for "single" just put joke under the meme image
 //  - for "twopart" put the setup on top and the delivery under the meme image
 
-const rhymObj2DOMObj = (rhymeObj) => {
+// DADJOKEZ WEBSITE IMPLEMENTATION:
+//  - GET https://icanhazdadjoke.com/ for random joke
+//  - GET https://icanhazdadjoke.com/search?term=${word} for search results
+
+const jokeObj2DOMObj = (jokeObj) => {
   //this should be an array where each element has a structure like
   //
   // "word": "no",
@@ -61,14 +105,14 @@ const rhymObj2DOMObj = (rhymeObj) => {
   // "score": "300",
   // "flags": "bc",
   // "syllables": "1"
-  const rhymeListItem = document.createElement("li");
-  const rhymeButton = document.createElement("button");
-  rhymeButton.classList.add('btn')
-  rhymeButton.classList.add('btn-info')
-  rhymeButton.textContent = rhymeObj.word;
-  rhymeButton.onclick = searchForBook;
-  rhymeListItem.appendChild(rhymeButton);
-  return rhymeListItem;
+  const jokeListItem = document.createElement("li");
+  const jokeButton = document.createElement("button");
+  jokeButton.classList.add('btn')
+  jokeButton.classList.add('btn-info')
+  jokeButton.textContent = jokeObj.word;
+  jokeButton.onclick = searchForBook;
+  jokeListItem.appendChild(jokeButton);
+  return jokeListItem;
 };
 
 const searchForBook = (ev) => {
