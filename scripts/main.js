@@ -11,6 +11,7 @@ searchForm.onsubmit = (ev) => {
 };
 
 // Get the jokes after clicking the "Go!" button:
+// It is set to only produce programming jokes.
 const getJokes = (word) => {
 
   // Case for no serch entry
@@ -23,7 +24,7 @@ const getJokes = (word) => {
       console.log(data);
       makeJokeList(data);
     });
-    joke.open("GET", `https://v2.jokeapi.dev/joke/Any?amount=5`);
+    joke.open("GET", `https://v2.jokeapi.dev/joke/Programming?amount=5`);
     joke.send();
 
   // Case for searching entry
@@ -36,7 +37,7 @@ const getJokes = (word) => {
       console.log(data);
       makeJokeList(data);
     });
-    joke.open("GET", `https://v2.jokeapi.dev/joke/Any?contains=${word}&amount=5`);
+    joke.open("GET", `https://v2.jokeapi.dev/joke/Programming?contains=${word}&amount=5`);
     joke.send();
   }
 };
